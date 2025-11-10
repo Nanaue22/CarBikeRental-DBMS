@@ -57,19 +57,28 @@ frame_add_vehicle.pack(pady=10)
 
 labels = ["Reg No", "Type (Car/Bike)", "Brand", "Model", "Rent Price", "Branch ID"]
 entries = []
+type_var = tk.StringVar()
 
 for i, lbl in enumerate(labels):
     tk.Label(frame_add_vehicle, text=lbl).grid(row=i, column=0, sticky="e", pady=5)
-    ent = tk.Entry(frame_add_vehicle)
-    ent.grid(row=i, column=1, padx=10)
-    entries.append(ent)
+
+    if lbl == "Type (Car/Bike)":
+        dropdown = ttk.Combobox(frame_add_vehicle, textvariable=type_var, values=["Car", "Bike"], state="readonly")
+        dropdown.grid(row=i, column=1, padx=10)
+        dropdown.current(0)
+        entries.append(dropdown)
+    else:
+        ent = tk.Entry(frame_add_vehicle)
+        ent.grid(row=i, column=1, padx=10)
+        entries.append(ent)
 
 def handle_add_vehicle():
     vals = [e.get() for e in entries]
     msg = add_vehicle(*vals)
-    messagebox.showinfo("Success", msg)
+    messagebox.showinfo("Result", msg)
     for e in entries:
         e.delete(0, tk.END)
+    entries[1].set("")  # reset dropdown
 
 tk.Button(tab_vehicle, text="Add Vehicle", command=handle_add_vehicle, bg="green", fg="white").pack(pady=10)
 
