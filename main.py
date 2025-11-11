@@ -4,6 +4,7 @@ from rental_operations import add_rental, return_vehicle, calculate_rental_cost
 from vehicle_operations import view_available_vehicles, add_vehicle, delete_vehicle
 from common_operations import get_table_data, get_customer_total_spent
 from analytics import vehicle_type_distribution, top_customers_by_spent
+from customer_operations import add_customer, update_customer, delete_customer
 import login_screen
 
 def start_main_window(user):
@@ -81,9 +82,9 @@ def start_main_window(user):
     tk.Button(frame_table, text="Show Data", command=lambda: load_table_data(selected_table.get()), bg="blue", fg="white", relief="flat", cursor="hand2", font=("Arial", 10, "bold")
 ).pack(side="left", padx=10)
 
-    # -------------------------------------------------
-    # TAB 2: Vehicle Management
-    # -------------------------------------------------
+# -------------------------------------------------
+# TAB 2: Vehicle Management
+# -------------------------------------------------
     # -------------------------------------------------
     # ADD VEHICLE SECTION
     # -------------------------------------------------
@@ -187,7 +188,86 @@ def start_main_window(user):
     tk.Button(frm_return, text="Calculate", command=lambda: messagebox.showinfo("Cost", calculate_rental_cost(cost_rental_id.get())), bg="orange", fg="white").grid(row=3, column=0, columnspan=2, pady=10)
 
     # -------------------------------------------------
-    # TAB 4: Insights & Analytics
+    # TAB 4: Customer Management
+    # -------------------------------------------------
+
+    tab_customer = ttk.Frame(notebook)
+    notebook.add(tab_customer, text="👤 Customer Management")
+
+    tk.Label(tab_customer, text="Manage Customers", font=("Arial", 14, "bold")).pack(pady=10)
+
+    # ---------- ADD CUSTOMER ----------
+    frame_add_cust = tk.LabelFrame(tab_customer, text="Add Customer", padx=10, pady=10)
+    frame_add_cust.pack(fill="x", padx=20, pady=10)
+
+    labels = ["Name", "Email", "Phone", "License No"]
+    entries_add = {}
+
+    for i, lbl in enumerate(labels):
+        tk.Label(frame_add_cust, text=lbl + ":").grid(row=i, column=0, sticky="e", pady=5)
+        ent = tk.Entry(frame_add_cust)
+        ent.grid(row=i, column=1, padx=10)
+        entries_add[lbl] = ent
+
+    def handle_add_customer():
+        vals = [entries_add["Name"].get(), entries_add["Email"].get(),
+                entries_add["Phone"].get(), entries_add["License No"].get()]
+        msg = add_customer(*vals)
+        messagebox.showinfo("Add Customer", msg)
+        for e in entries_add.values():
+            e.delete(0, tk.END)
+
+    tk.Button(frame_add_cust, text="Add Customer", command=handle_add_customer,
+            bg="green", fg="white", width=15).grid(row=len(labels), column=0, columnspan=2, pady=10)
+
+    # ---------- UPDATE CUSTOMER ----------
+    frame_update_cust = tk.LabelFrame(tab_customer, text="Update Customer", padx=10, pady=10)
+    frame_update_cust.pack(fill="x", padx=20, pady=10)
+
+    labels_upd = ["Customer ID", "Name", "Email", "Phone", "License No"]
+    entries_upd = {}
+
+    for i, lbl in enumerate(labels_upd):
+        tk.Label(frame_update_cust, text=lbl + ":").grid(row=i, column=0, sticky="e", pady=5)
+        ent = tk.Entry(frame_update_cust)
+        ent.grid(row=i, column=1, padx=10)
+        entries_upd[lbl] = ent
+
+    def handle_update_customer():
+        cust_id = entries_upd["Customer ID"].get()
+        vals = {
+            "name": entries_upd["Name"].get(),
+            "email": entries_upd["Email"].get(),
+            "phone": entries_upd["Phone"].get(),
+            "license_no": entries_upd["License No"].get()
+        }
+        msg = update_customer(cust_id, **vals)
+        messagebox.showinfo("Update Customer", msg)
+        for e in entries_upd.values():
+            e.delete(0, tk.END)
+
+    tk.Button(frame_update_cust, text="Update Customer", command=handle_update_customer,
+            bg="blue", fg="white", width=15).grid(row=len(labels_upd), column=0, columnspan=2, pady=10)
+
+    # ---------- DELETE CUSTOMER ----------
+    frame_delete_cust = tk.LabelFrame(tab_customer, text="Delete Customer", padx=10, pady=10)
+    frame_delete_cust.pack(fill="x", padx=20, pady=10)
+
+    tk.Label(frame_delete_cust, text="Customer ID:").grid(row=0, column=0, sticky="e", pady=5)
+    entry_del = tk.Entry(frame_delete_cust)
+    entry_del.grid(row=0, column=1, padx=10)
+
+    def handle_delete_customer():
+        cust_id = entry_del.get()
+        msg = delete_customer(cust_id)
+        messagebox.showinfo("Delete Customer", msg)
+        entry_del.delete(0, tk.END)
+
+    tk.Button(frame_delete_cust, text="Delete Customer", command=handle_delete_customer,
+            bg="red", fg="white", width=15).grid(row=1, column=0, columnspan=2, pady=10)
+
+    # -------------------------------------------------
+    # TAB 5: Insights & Analytics
     # -------------------------------------------------
     tab_insight = ttk.Frame(notebook)
     notebook.add(tab_insight, text="📊 Insights & Analytics")
