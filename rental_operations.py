@@ -1,7 +1,7 @@
 from db_config import get_connection
 
-def add_rental(cust_id, vehicle_id, staff_id, start_date, end_date):
-    conn = get_connection()
+def add_rental(cust_id, vehicle_id, staff_id, start_date, end_date, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
 
     try:
@@ -41,8 +41,8 @@ def add_rental(cust_id, vehicle_id, staff_id, start_date, end_date):
         conn.close()
 
 # 🔹 Return vehicle safely
-def return_vehicle(rental_id):
-    conn = get_connection()
+def return_vehicle(rental_id, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
     try:
         # 1️⃣ Check if rental exists
@@ -77,8 +77,8 @@ def return_vehicle(rental_id):
 
 
 # 🔹 Safely calculate rental cost (via stored procedure)
-def calculate_rental_cost(rental_id):
-    conn = get_connection()
+def calculate_rental_cost(rental_id, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
     try:
         # 1️⃣ Check if rental exists

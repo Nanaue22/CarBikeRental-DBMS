@@ -38,12 +38,12 @@ def view_available_vehicles():
 # ====================================================
 # 🔹 Add a new vehicle safely
 # ====================================================
-def add_vehicle(reg_no, vtype, brand, model, rent_price, branch_id):
+def add_vehicle(reg_no, vtype, brand, model, rent_price, branch_id, role=None):
     conn = None
     cursor = None
 
     try:
-        conn = get_connection()
+        conn = get_connection(role)
         cursor = conn.cursor()
 
         # 1️⃣ Validate Type (must be Car or Bike)
@@ -93,8 +93,8 @@ def add_vehicle(reg_no, vtype, brand, model, rent_price, branch_id):
 # ====================================================
 # 🔹 Delete a vehicle safely
 # ====================================================
-def delete_vehicle(vehicle_id):
-    conn = get_connection()
+def delete_vehicle(vehicle_id, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
     try:
         # 1️⃣ Check if vehicle exists

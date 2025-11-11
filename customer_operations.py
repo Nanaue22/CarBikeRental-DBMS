@@ -3,11 +3,11 @@ from db_config import get_connection
 # =====================================
 # 🔹 1. ADD NEW CUSTOMER
 # =====================================
-def add_customer(name, email, phone, license_no):
+def add_customer(name, email, phone, license_no, role=None):
     conn = None
     cursor = None
     try:
-        conn = get_connection()
+        conn = get_connection(role)
         cursor = conn.cursor()
 
         # Check if customer already exists by license or email
@@ -35,11 +35,11 @@ def add_customer(name, email, phone, license_no):
 # =====================================
 # 🔹 2. UPDATE CUSTOMER DETAILS
 # =====================================
-def update_customer(cust_id, name=None, email=None, phone=None, license_no=None):
+def update_customer(cust_id, name=None, email=None, phone=None, license_no=None, role=None):
     conn = None
     cursor = None
     try:
-        conn = get_connection()
+        conn = get_connection(role)
         cursor = conn.cursor()
 
         # Check if customer exists
@@ -85,11 +85,11 @@ def update_customer(cust_id, name=None, email=None, phone=None, license_no=None)
 # =====================================
 # 🔹 3. DELETE CUSTOMER
 # =====================================
-def delete_customer(cust_id):
+def delete_customer(cust_id, role=None):
     conn = None
     cursor = None
     try:
-        conn = get_connection()
+        conn = get_connection(role)
         cursor = conn.cursor()
 
         # Check if customer exists
