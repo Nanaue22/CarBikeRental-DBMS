@@ -1,7 +1,7 @@
 from db_config import get_connection
 
-def get_table_data(table_name):
-    conn = get_connection()
+def get_table_data(table_name, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM {table_name}")
     data = cursor.fetchall()
@@ -11,8 +11,8 @@ def get_table_data(table_name):
     return columns, data
 
 # 🔹 NEW: Call MySQL FUNCTION GetCustomerTotal
-def get_customer_total_spent(cust_id):
-    conn = get_connection()
+def get_customer_total_spent(cust_id, role=None):
+    conn = get_connection(role)
     cursor = conn.cursor()
     cursor.execute("SELECT GetCustomerTotal(%s)", (cust_id,))
     result = cursor.fetchone()[0]

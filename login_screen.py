@@ -1,5 +1,4 @@
 # login_screen.py
-# ----------------
 import tkinter as tk
 from tkinter import messagebox
 from auth_operations import login_staff, signup_staff
@@ -25,12 +24,12 @@ def open_login_window():
         staff_id = entry_id.get()
         password = entry_pw.get()
         user = login_staff(staff_id, password)
-        if isinstance(user, str):  # DB error
+        if isinstance(user, str):
             messagebox.showerror("Error", user)
         elif user:
             messagebox.showinfo("Success", f"Welcome, {user[1]} ({user[2]})!")
-            login.destroy()
-            main.start_main_window(user)  # open main dashboard
+            login.withdraw()  # hide login instead of destroy
+            main.start_main_window(user, login)
         else:
             messagebox.showerror("Login Failed", "Invalid Staff ID or Password.")
 
@@ -42,8 +41,7 @@ def open_login_window():
 
 # 🔹 Signup Window
 def open_signup_window(parent):
-    parent.destroy()
-    signup = tk.Tk()
+    signup = tk.Toplevel(parent)  # make it child of main login window
     signup.title("Staff Sign Up")
     signup.geometry("400x450")
 
@@ -63,14 +61,11 @@ def open_signup_window(parent):
         messagebox.showinfo("Signup Status", msg)
         if "successfully" in msg:
             signup.destroy()
-            open_login_window()
 
     tk.Button(signup, text="Sign Up", command=create_account, bg="green", fg="white").pack(pady=15)
-    tk.Button(signup, text="Back to Login", command=lambda: [signup.destroy(), open_login_window()],
+    tk.Button(signup, text="Back to Login", command=signup.destroy,
               bg="gray", fg="white").pack()
 
-    signup.mainloop()
-
-
+# Start the program
 if __name__ == "__main__":
     open_login_window()
