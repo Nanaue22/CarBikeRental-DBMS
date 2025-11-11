@@ -89,3 +89,33 @@ def add_vehicle(reg_no, vtype, brand, model, rent_price, branch_id):
             cursor.close()
         if conn:
             conn.close()
+
+# ====================================================
+# 🔹 Delete a vehicle safely
+# ====================================================
+def delete_vehicle(vehicle_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        # 1️⃣ Check if vehicle exists
+        cursor.execute("SELECT Availability FROM Vehicle WHERE Vehicle_ID = %s", (vehicle_id,))
+        result = cursor.fetchone()
+        if not result:
+            return f"❌ Error: Vehicle ID {vehicle_id} does not exist."
+
+        # 2️⃣ Optional: prevent deleting rented vehicles
+        if result[0] == 0:
+            return f"⚠️ Vehicle ID {vehicle_id} is currently unavailable (rented). Cannot delete."
+
+        # 3️⃣ Delete vehicle
+        cursor.execute("DELETE FROM Vehicle WHERE Vehicle_ID = %s", (vehicle_id,))
+        conn.commit()
+        return f"✅ Vehicle ID {vehicle_id} deleted successfully!"
+
+    except Exception as e:
+        conn.rollback()
+        return f"⚠️ Database Error: {e}"
+
+    finally:
+        cursor.close()
+        conn.close()
