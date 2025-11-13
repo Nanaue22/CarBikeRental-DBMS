@@ -252,31 +252,128 @@ def start_main_window(user, login_screen=None):
     # -------------------------------------------------
     # TAB 5: Insights & Analytics
     # -------------------------------------------------
-    tab_insight = ttk.Frame(notebook)
+    
     if "Analytics" in allowed_tabs:
+        from common_operations import get_customer_total_spent
+        from analytics import vehicle_type_distribution, top_customers_by_spent
+        from analytics_operations import (
+            get_customer_most_expensive,
+            get_rental_report,
+            get_branch_vehicle_count
+        )
+
+        tab_insight = ttk.Frame(notebook)
         notebook.add(tab_insight, text="📊 Insights & Analytics")
 
-    tk.Label(tab_insight, text="View Customer Total Spent", font=("Arial", 14, "bold")).pack(pady=10)
-    frm_insight = tk.Frame(tab_insight)
-    frm_insight.pack(pady=5)
+        # ===============================================
+        # 1️⃣ TOTAL SPENT BY CUSTOMER
+        # ===============================================
+        tk.Label(tab_insight, text="View Customer Total Spent", 
+                font=("Arial", 14, "bold")).pack(pady=10)
 
-    tk.Label(frm_insight, text="Customer ID").grid(row=0, column=0)
-    cust_total_entry = tk.Entry(frm_insight)
-    cust_total_entry.grid(row=0, column=1)
+        frm_insight = tk.Frame(tab_insight)
+        frm_insight.pack(pady=5)
 
-    def show_customer_total():
-        cid = cust_total_entry.get()
-        total = get_customer_total_spent(cid, role=role)
-        messagebox.showinfo("Total Spent", f"Customer {cid} has spent ₹{total:.2f}")
+        tk.Label(frm_insight, text="Customer ID").grid(row=0, column=0)
+        cust_total_entry = tk.Entry(frm_insight)
+        cust_total_entry.grid(row=0, column=1)
 
-    tk.Button(frm_insight, text="Show Total Spent", command=show_customer_total,
-              bg="green", fg="white").grid(row=1, column=0, columnspan=2, pady=10)
+        def show_customer_total():
+            cid = cust_total_entry.get()
+            total = get_customer_total_spent(cid, role=role)
+            messagebox.showinfo("Total Spent", f"Customer {cid} has spent ₹{total:.2f}")
 
-    # Charts
-    tk.Label(tab_insight, text="Analytics Charts", font=("Arial", 14, "bold")).pack(pady=10)
-    tk.Button(tab_insight, text="Vehicle Type Distribution", command=vehicle_type_distribution,
-              bg="purple", fg="white").pack(pady=5)
-    tk.Button(tab_insight, text="Top Customers by Spending", command=top_customers_by_spent,
-              bg="brown", fg="white").pack(pady=5)
+        tk.Button(frm_insight, text="Show Total Spent",
+                command=show_customer_total,
+                bg="green", fg="white").grid(row=1, column=0, columnspan=2, pady=10)
+
+        # ===============================================
+        # 2️⃣ NESTED QUERY – CUSTOMER WHO RENTED MOST EXPENSIVE VEHICLE
+        # ===============================================
+        def show_most_expensive_customer():
+            result = get_customer_most_expensive(role)
+            if result:
+                messagebox.showinfo(
+                    "Most Expensive Rental",
+                    f"Name: {result[0]}\nEmail: {result[1]}"
+                )
+            else:
+                messagebox.showinfo("Most Expensive Rental", "No data found.")
+
+        tk.Button(tab_insight, text="Most Expensive Rental Customer",
+                command=show_most_expensive_customer,
+                bg="blue", fg="white").pack(pady=8)
+
+        # ===============================================
+        # 3️⃣ JOIN QUERY – FULL RENTAL REPORT
+        # ===============================================
+        def show_rental_report():
+            rows = get_rental_report(role)
+
+            win = tk.Toplevel(root)
+            win.title("Complete Rental Report")
+            win.geometry("900x400")
+
+            tree = ttk.Treeview(win)
+            tree.pack(fill="both", expand=True)
+
+            cols = ["Rental_ID", "Customer_Name", "Vehicle_Model", "Staff_Name", 
+                    "Start_Date", "End_Date", "Total_Cost"]
+            tree["columns"] = cols
+            tree["show"] = "headings"
+
+            for col in cols:
+                tree.heading(col, text=col)
+                tree.column(col, width=120)
+
+            for row in rows:
+                tree.insert("", "end", values=row)
+
+        tk.Button(tab_insight, text="View Full Rental Report",
+                command=show_rental_report,
+                bg="purple", fg="white").pack(pady=8)
+
+        # ===============================================
+        # 4️⃣ GROUP QUERY – BRANCH-WISE VEHICLE COUNT
+        # ===============================================
+        def show_branch_vehicle_count():
+            rows = get_branch_vehicle_count(role)
+
+            win = tk.Toplevel(root)
+            win.title("Branch-wise Vehicle Count")
+            win.geometry("600x350")
+
+            tree = ttk.Treeview(win)
+            tree.pack(fill="both", expand=True)
+
+            cols = ["Branch_Name", "Vehicle_Type", "Number_Of_Vehicles"]
+            tree["columns"] = cols
+            tree["show"] = "headings"
+
+            for col in cols:
+                tree.heading(col, text=col)
+                tree.column(col, width=180)
+
+            for row in rows:
+                tree.insert("", "end", values=row)
+
+        tk.Button(tab_insight, text="Branch-wise Vehicle Count",
+                command=show_branch_vehicle_count,
+                bg="brown", fg="white").pack(pady=8)
+
+        # ===============================================
+        # 5️⃣ EXISTING CHARTS
+        # ===============================================
+        tk.Label(tab_insight, text="Analytics Charts",
+                font=("Arial", 14, "bold")).pack(pady=10)
+
+        tk.Button(tab_insight, text="Vehicle Type Distribution",
+                command=vehicle_type_distribution,
+                bg="purple", fg="white").pack(pady=5)
+
+        tk.Button(tab_insight, text="Top Customers by Spending",
+                command=top_customers_by_spent,
+                bg="brown", fg="white").pack(pady=5)
+
 
     root.mainloop()
